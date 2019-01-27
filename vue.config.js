@@ -26,6 +26,7 @@ module.exports = {
     }
   },
   devServer: {
+    disableHostCheck: true,
     before (app) {
       app.get('/api/seller', function (req, res) {
         res.json({
