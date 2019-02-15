@@ -6,6 +6,26 @@
         :data="goods"
         :options="scrollOptions"
         v-if="goods.length">
+        <template slot="bar" slot-scope="props">
+          <cube-scroll-nav-bar
+            direction="vertical"
+            :labels="props.labels"
+            :txts="barTxts"
+            :current="props.current">
+            <template slot-scope="props">
+              <div class="text">
+                <support-ico v-if="props.txt.type >= 1"
+                             :size="3"
+                             :type="props.txt.type">
+                </support-ico>
+                <span>{{props.txt.name}}</span>
+                <span class="num" v-if="props.txt.count">
+                  <bubble :num="props.txt.count"></bubble>
+                </span>
+              </div>
+            </template>
+          </cube-scroll-nav-bar>
+        </template>
         <cube-scroll-nav-panel
           v-for="good in goods"
           :key="good.name"
@@ -29,17 +49,33 @@
                   <span class="now">¥{{food.price}}</span>
                   <span class="old" v-show="food.oldPrice">¥{{food.oldPrice}}</span>
                 </div>
+                <div class="cart-control-wrapper">
+                  <cart-control :food="food"
+                                @add="onAdd">
+                  </cart-control>
+                </div>
               </div>
             </li>
           </ul>
         </cube-scroll-nav-panel>
       </cube-scroll-nav>
+      <div class="shop-cart-wrapper">
+        <shop-cart
+          ref="shopCart"
+          :select-foods="selectFoods"
+          :delivery-price="seller.deliveryPrice"
+          :min-price="seller.minPrice"></shop-cart>
+      </div>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import { getGoods } from '../../api'
+  import shopCart from '@/components/shop-cart/shop-cart'
+  import cartControl from '@/components/cart-control/cart-control'
+  import SupportIco from '@/components/support-ico/support-ico'
+  import Bubble from '@/components/bubble/bubble'
 
   export default {
     name: 'goods',
@@ -60,12 +96,53 @@
         }
       }
     },
+    computed: {
+      seller () {
+        return this.data.seller
+      },
+      selectFoods () {
+        let ret = []
+        this.goods.forEach((good) => {
+          good.foods.forEach((food) => {
+            if (food.count) {
+              ret.push(food)
+            }
+          })
+        })
+        return ret
+      },
+      barTxts () {
+        let ret = []
+        this.goods.forEach((good) => {
+          const { type, name, foods } = good
+          let count = 0
+          foods.forEach((food) => {
+            count += food.count || 0
+          })
+          ret.push({
+            type,
+            name,
+            count
+          })
+        })
+        return ret
+      }
+    },
     methods: {
       fetch () {
-        getGoods().then((goods) => {
-          this.goods = goods
-        })
+        if (!this.fetched) {
+          this.fetched = true
+          getGoods().then((goods) => {
+            this.goods = goods
+          })
+        }
+      },
+      onAdd (el) {
+        this.$refs.shopCart.drop(el)
       }
+    },
+    components: {
+      shopCart, cartControl, SupportIco, Bubble
     }
   }
 </script>
