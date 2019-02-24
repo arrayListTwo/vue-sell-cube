@@ -32,9 +32,11 @@
           :label="good.name"
           :title="good.name">
           <ul>
-            <li v-for="food in good.foods"
-                :key="food.name"
-                class="food-item">
+            <li
+              @click="selectFood(food)"
+              v-for="food in good.foods"
+              :key="food.name"
+              class="food-item">
               <div class="icon">
                 <img :src="food.icon" width="57" height="57">
               </div>
@@ -90,6 +92,7 @@
     data () {
       return {
         goods: [],
+        selectedFood: {},
         scrollOptions: {
           click: false,
           directionLockThreshold: 0
@@ -129,16 +132,54 @@
       }
     },
     methods: {
+      selectFood (food) {
+        this.selectedFood = food
+        this._showFood()
+        this._showShopCartSticky()
+      },
       fetch () {
         if (!this.fetched) {
           this.fetched = true
-          getGoods().then((goods) => {
+          getGoods({
+            id: this.seller.id
+          }).then((goods) => {
             this.goods = goods
           })
         }
       },
       onAdd (el) {
         this.$refs.shopCart.drop(el)
+      },
+      _showFood () {
+        this.foodComp = this.foodComp || this.$createFood({
+          $props: {
+            food: 'selectedFood'
+          },
+          $events: {
+            'leave': () => {
+              this._hideShopCartList()
+            },
+            'add': (el) => {
+              this.shopCartStickyComp.drop(el)
+            }
+          }
+        })
+        this.foodComp.show()
+      },
+      _showShopCartSticky () {
+        this.shopCartStickyComp = this.shopCartStickyComp ||
+          this.$createShopCartSticky({
+            $props: {
+              selectFoods: 'selectFoods',
+              minPrice: this.seller.minPrice,
+              deliveryPrice: this.seller.deliveryPrice,
+              fold: true
+            }
+          })
+        this.shopCartStickyComp.show()
+      },
+      _hideShopCartList () {
+        this.shopCartStickyComp.hide()
       }
     },
     components: {
