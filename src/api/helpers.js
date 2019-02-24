@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const urlMap = {
   development: '/',
-  production: 'http://superdev.top/sell/'
+  production: 'http://www.superdev.top/sell/'
 }
 const publicPath = urlMap[process.env.NODE_ENV]
 const ERR_OK = 0
