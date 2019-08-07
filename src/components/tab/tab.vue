@@ -53,7 +53,7 @@
       }
     },
     mounted () {
-      this.onChange(0)
+      this.onChange(this.index)
     },
     methods: {
       onChange (current) {

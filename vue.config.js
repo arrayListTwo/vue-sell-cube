@@ -26,6 +26,7 @@ module.exports = {
       theme: true
     }
   },
+
   devServer: {
     disableHostCheck: true,
     before (app) {
@@ -50,6 +51,7 @@ module.exports = {
       })
     }
   },
+
   chainWebpack (config) {
     config.resolve.alias
       .set('components', resolve('src/components'))
@@ -60,5 +62,7 @@ module.exports = {
       .use(webpack.ContextReplacementPlugin,
         [/moment[/\\]locale$/, /zh-cn/])
   },
-  publicPath: ''
+
+  publicPath: '',
+  lintOnSave: undefined
 }
