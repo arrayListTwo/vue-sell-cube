@@ -143,7 +143,6 @@
           getGoods({
             id: this.seller.id
           }).then((goods) => {
-            console.log(goods)
             this.goods = goods
           })
         }
